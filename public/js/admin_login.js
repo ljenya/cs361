@@ -2,129 +2,79 @@
 module.exports = function() {
     var express = require('express');
     var router = express.Router();
-    //Allow for multiple functions
+    //Allow for multiple tables
     var async = require('async');
 
-    //get flight table
-    function getFlight(mysql) {
-        return function(callback) {
-            mysql.pool.query("SELECT airline, flight_no, city, ticket_price, flight_date FROM flight INNER JOIN destination ON flight.flight_destination = destination.id", function(err, tb1) {
-                if (err) {
-                    return callback(err, []);
-                }
-                return callback(null, tb1);
-            });
-        }
-    }
-
-    //get destination table
-    function getDestination(mysql) {
-        return function(callback) {
-            mysql.pool.query("SELECT id, city FROM destination", function(err, tb3) {
-                if (err) {
-                    return callback(err, []);
-                }
-                return callback(null, tb3);
-            });
-        }
-    }
-
-    //search flight by outlined filters in handlebars
-    function searchFunction(req, res, mysql, context, complete) {
-        var query = "SELECT airline, flight_no, city, ticket_price, flight_date FROM flight INNER JOIN destination ON flight.flight_destination = destination.id WHERE " + req.query.filter + " LIKE " + mysql.pool.escape(req.query.search + '%');
-        console.log(query)
-        mysql.pool.query(query, function(err, results) {
-            if (err) {
-                res.write(JSON.stringify(err));
-                res.end();
-            }
-            context.flight = results;
-            complete();
-        });
-    };
-
-    //render flight table
+    //render the new_ticket page
     router.get('/', function(req, res) {
 
         var mysql = req.app.get('mysql');
         async.parallel({
-                flight: getFlight(mysql),
-                destination: getDestination(mysql)
+                //new_ticket: getnew_ticket(mysql),
+                //clients: getClients(mysql)
             },
 
             function(err, results) {
                 if (err) {
                     console.log(err.message);
                 }
-                res.render('flight', results);
+                res.render('admin_login', results);
             }
         );
     });
 
-    //render search results based on search
-    router.get('/search', function(req, res) {
-        var callbackCount = 0;
-        var context = {};
-        var mysql = req.app.get('mysql');
-        searchFunction(req, res, mysql, context, complete);
-
-        function complete() {
-            callbackCount++;
-            if (callbackCount >= 1) {
-                res.render('flight', context);
-            };
-        };
-    });
-
-    //add a new flight to flight table
+/*
+    //Add function to add into the tickets table
     router.post('/add', function(req, res) {
         console.log(req.body)
         var mysql = req.app.get('mysql');
-        var sql = "INSERT IGNORE INTO flight (`airline`, `flight_no`, `flight_destination`, `ticket_price`, `flight_date`) VALUES (?, ?, ?, ?, ?)";
-        var inserts = [req.body.new_airline, req.body.new_flight_no, req.body.new_flight_destination, req.body.new_ticket_price, req.body.new_flight_date];
+        var sql = "INSERT INTO tickets (`category`, `member_name`, `phone`, `title`, `issue`) VALUES (?, ?, ?, ?, ?)";
+        var inserts = [req.body.new_category, req.body.new_name, req.body.new_phone, req.body.new_title, req.body.new_issue];
         sql = mysql.pool.query(sql, inserts, function(err, results) {
             if (err) {
                 console.log(JSON.stringify(error))
                 res.write(JSON.stringify(error));
                 res.end();
             } else {
-                res.redirect('/flight');
+                res.redirect('/new_ticket');
             }
         });
     });
-
-    //update flight based on flight number
+/*
+    //add to new_ticket table by selecting client first and last name
+    router.post('/add', function(req, res) {
+        console.log(req.body)
+        var mysql = req.app.get('mysql');
+        var sql = "INSERT IGNORE INTO tickets (`client_id`, `pay_due`, `sign_date`, `trip_start`, `trip_end`, `pay_due_date`, `paid`) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        var inserts = [req.body.new_client_id, req.body.new_pay_due, req.body.new_sign_date, req.body.new_trip_start, req.body.new_trip_end, req.body.new_pay_due_date, req.body.new_paid];
+        sql = mysql.pool.query(sql, inserts, function(err, results) {
+            if (err) {
+                console.log(JSON.stringify(error))
+                res.write(JSON.stringify(error));
+                res.end();
+            } else {
+                res.redirect('new_ticket');
+            }
+        });
+    });
+*/
+/*
+    //update client invoice
     router.post('/update', function(req, res) {
         console.log(req.body)
         var mysql = req.app.get('mysql');
-        var sql = "UPDATE flight SET airline = ?, flight_no = ?, flight_destination = ?, ticket_price = ?, flight_date =? WHERE flight_no = ?";
-        var inserts = [req.body.editairline, req.body.editflight_no, req.body.editflight_destination, req.body.editticket_price, req.body.editflight_date, req.body.update_flight_no];
+        var sql = "UPDATE new_ticket SET pay_due = ?, sign_date = ?, trip_start = ?, trip_end = ?, pay_due_date = ?, paid = ? WHERE client_id = ?";
+        var inserts = [req.body.editpay_due, req.body.editsign_date, req.body.edittrip_start, req.body.edittrip_end, req.body.editpay_due_date, req.body.editpaid, req.body.updateclient_id];
         sql = mysql.pool.query(sql, inserts, function(err, results) {
             if (err) {
                 console.log(JSON.stringify(err))
                 res.write(JSON.stringify(err));
                 res.end();
             } else {
-                res.redirect('/flight');
+                res.redirect('new_ticket');
             }
         });
     });
-
-    //delete flight by getting flight number
-    router.post('/delete', function(req, res) {
-        var mysql = req.app.get('mysql');
-        var sql = "DELETE FROM flight WHERE flight_no = ?";
-        var inserts = [req.body.deleteGID];
-        sql = mysql.pool.query(sql, inserts, function(err, results) {
-            if (err) {
-                console.log(err)
-                res.write(JSON.stringify(err));
-                res.status(400);
-                res.end();
-            } else {
-                res.redirect('/flight');
-            }
-        });
-    });
+    */
     return router;
 }();

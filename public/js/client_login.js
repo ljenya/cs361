@@ -2,144 +2,79 @@
 module.exports = function() {
     var express = require('express');
     var router = express.Router();
-
-    //Allow for multiple functions
+    //Allow for multiple tables
     var async = require('async');
 
-    function getClient_activities(mysql) {
-        return function(callback) {
-            mysql.pool.query("select cid, last_name, first_name, aid, activity_name FROM clients INNER JOIN client_activities ON clients.id = client_activities.cid INNER JOIN activities ON activities.id = aid", function(err, tb1) {
-                if (err) {
-                    return callback(err, []);
-                }
-                return callback(null, tb1);
-            });
-        }
-    }
-
-
-    //Get activities table
-    function getActivities(mysql) {
-        return function(callback) {
-            mysql.pool.query("SELECT id, activity_name FROM activities", function(err, tb2) {
-                if (err) {
-                    return callback(err, []);
-                }
-                return callback(null, tb2);
-            });
-        }
-    }
-
-
-    //Get clients table
-    function getClients(mysql) {
-        return function(callback) {
-            mysql.pool.query("SELECT clients.id, last_name, first_name FROM clients", function(err, tb3) {
-                if (err) {
-                    return callback(err, []);
-                }
-                return callback(null, tb3);
-            });
-        }
-    }
-
-    //Search cid and aid, also search from clients by last name and first name
-    function searchFunction(req, res, mysql, context, complete) {
-        var query = "select cid, last_name, first_name, aid, activity_name FROM clients INNER JOIN client_activities ON clients.id = client_activities.cid INNER JOIN activities ON activities.id = aid WHERE " + req.query.filter + " LIKE " + mysql.pool.escape(req.query.search + '%');
-        console.log(query)
-        mysql.pool.query(query, function(err, results) {
-            if (err) {
-                res.write(JSON.stringify(err));
-                res.end();
-            }
-            context.client_activities = results;
-            complete();
-        });
-    };
-
-    //Render the client activities page
+    //render the new_ticket page
     router.get('/', function(req, res) {
 
         var mysql = req.app.get('mysql');
         async.parallel({
-                client_activities: getClient_activities(mysql),
-                activities: getActivities(mysql),
-                clients: getClients(mysql)
+                //new_ticket: getnew_ticket(mysql),
+                //clients: getClients(mysql)
             },
 
             function(err, results) {
                 if (err) {
                     console.log(err.message);
                 }
-                res.render('client_activities', results);
+                res.render('admin_login', results);
             }
         );
     });
 
-    //Render search page with selected filter results
-    router.get('/search', function(req, res) {
-        var callbackCount = 0;
-        var context = {};
-        var mysql = req.app.get('mysql');
-        searchFunction(req, res, mysql, context, complete);
-
-        function complete() {
-            callbackCount++;
-            if (callbackCount >= 1) {
-                res.render('client_activities', context);
-            };
-        };
-    });
-
-    //Add to client activities by selecting client and exisiting activity
+/*
+    //Add function to add into the tickets table
     router.post('/add', function(req, res) {
         console.log(req.body)
         var mysql = req.app.get('mysql');
-        var sql = "INSERT IGNORE INTO client_activities (`cid`, `aid`) VALUES (?, ?)";
-        var inserts = [req.body.new_cid, req.body.new_aid];
+        var sql = "INSERT INTO tickets (`category`, `member_name`, `phone`, `title`, `issue`) VALUES (?, ?, ?, ?, ?)";
+        var inserts = [req.body.new_category, req.body.new_name, req.body.new_phone, req.body.new_title, req.body.new_issue];
         sql = mysql.pool.query(sql, inserts, function(err, results) {
             if (err) {
                 console.log(JSON.stringify(error))
                 res.write(JSON.stringify(error));
                 res.end();
             } else {
-                res.redirect('/client_activities');
+                res.redirect('/new_ticket');
             }
         });
     });
-
-    //update client activities by selecting a new activity for each client
+/*
+    //add to new_ticket table by selecting client first and last name
+    router.post('/add', function(req, res) {
+        console.log(req.body)
+        var mysql = req.app.get('mysql');
+        var sql = "INSERT IGNORE INTO tickets (`client_id`, `pay_due`, `sign_date`, `trip_start`, `trip_end`, `pay_due_date`, `paid`) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        var inserts = [req.body.new_client_id, req.body.new_pay_due, req.body.new_sign_date, req.body.new_trip_start, req.body.new_trip_end, req.body.new_pay_due_date, req.body.new_paid];
+        sql = mysql.pool.query(sql, inserts, function(err, results) {
+            if (err) {
+                console.log(JSON.stringify(error))
+                res.write(JSON.stringify(error));
+                res.end();
+            } else {
+                res.redirect('new_ticket');
+            }
+        });
+    });
+*/
+/*
+    //update client invoice
     router.post('/update', function(req, res) {
         console.log(req.body)
         var mysql = req.app.get('mysql');
-        var sql = "UPDATE IGNORE client_activities SET aid = ? WHERE cid = ? AND aid = ?";
-        var inserts = [req.body.editaid, req.body.updatecid, req.body.updateaid];
+        var sql = "UPDATE new_ticket SET pay_due = ?, sign_date = ?, trip_start = ?, trip_end = ?, pay_due_date = ?, paid = ? WHERE client_id = ?";
+        var inserts = [req.body.editpay_due, req.body.editsign_date, req.body.edittrip_start, req.body.edittrip_end, req.body.editpay_due_date, req.body.editpaid, req.body.updateclient_id];
         sql = mysql.pool.query(sql, inserts, function(err, results) {
             if (err) {
                 console.log(JSON.stringify(err))
                 res.write(JSON.stringify(err));
                 res.end();
             } else {
-                res.redirect('/client_activities');
+                res.redirect('new_ticket');
             }
         });
     });
-
-    //delete a client activity for a client
-    router.post('/delete', function(req, res) {
-        var mysql = req.app.get('mysql');
-        var sql = "DELETE FROM client_activities WHERE cid = ? AND aid = ?";
-        var inserts = [req.body.deletecid, req.body.deleteaid];
-        sql = mysql.pool.query(sql, inserts, function(err, results) {
-            if (err) {
-                console.log(err)
-                res.write(JSON.stringify(err));
-                res.status(400);
-                res.end();
-            } else {
-                res.redirect('/client_activities');
-            }
-        });
-    });
+    */
     return router;
 }();
