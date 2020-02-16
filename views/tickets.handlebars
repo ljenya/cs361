@@ -1,0 +1,138 @@
+<div class="container">
+
+	<!--search tickets-->
+	<form action="/tickets/search" method="get">
+
+		<div class="form-group col-md-7">
+			<input name="search" class="form-control" type="text" placeholder="Search" aria-label="Search">
+		</div>
+		<!--select what to filter the search results by-->
+		<div class="form-group col-md-3">
+			<select class="form-control" name="filter">
+				<option value="category">Category</option>
+				<option value="team_member">Team Member</option>
+				<option value="priority">Priority</option>
+			</select>
+		</div>
+		<div class="form-group col-md-2">
+			<button type="submit" class="btn btn-primary btn-block">Search Tickets</button>
+		</div>
+
+	</form>
+
+	<!--display table-->
+	<div>
+		<table class='table'>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Ticket Category</th>
+					<th>Ticket Title</th>
+					<th>Assigned Member Name</th>
+					<th>Submission Date</th>
+					<th>Priority</th>
+					<th></th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<!--using handlebars to display each row from database-->
+				{{#each tickets}}
+				<tr>
+					<td>{{id}}</td>
+					<td>{{category}}</td>
+					<td>{{title}}</td>
+					<td>{{member_name}}</td>
+					<td>{{sub_date}}</td>
+					<td>{{priority}}</td>
+
+
+					<td>
+						<!--button to redirect to update modal of selected row-->
+						<button type="button" class="btn btn-warning btn-padded inTableButton" data-toggle="modal"
+							data-target="#ticketsUpdate{{id}}"> Update </button>
+					</td>
+					<td>
+						<!--button to call delete function in js for selected row-->
+						<form action="tickets/delete" method="post">
+							<input type="hidden" name="deleteGID" value="{{id}}">
+							<button type="submit" class="btn btn-danger inTableButton">Delete</button>
+						</form>
+					</td>
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</div>
+
+
+	<!--add to tickets-->
+	<div class="buttonCont">
+		<button class="btn btn-success btn-lg btn-block" type="button" data-toggle="modal" data-target="/new_ticket"
+			aria-expanded="false" aria-controls="addaccount">Add a New Ticket</button><br />
+	</div>
+
+	<!--update tickets-->
+	{{#each tickets}}
+	<!--bootstrap styling-->
+	<div class="row d-flex justify-content-center modalWrapper">
+		<div class="modal fade modalUpdateClass" id="ticketsUpdate{{id}}" tabindex="-1" role="dialog"
+			aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<form action="/tickets/update" method="post">
+						<input type="hidden" name="updateID" value="{{id}}">
+						<div class="modal-header text-left">
+							<h4 class="modal-title">{{title}}</h4>
+							<button type="button" class="close text-secondary" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<!--data manipulation inputs for each of the selected rows, values will already be prepopulated-->
+						<div class="modal-body mx-3">
+							<div class="md-form mb-1">
+								<label data-error="wrong" data-success="right">Issue Description</label>
+								<p>{{issue}}</p>
+							</div>
+							<div class="md-form mb-1">
+								<label data-error="wrong" data-success="right" for="editPriority">Edit Issue Priority</label>
+								<select name="editPriority">
+									<!--selecting destination city-->
+									<option>1</option>
+									<option>2</option>
+									<option>3</option>
+									<option>4</option>
+									<option>5</option>
+								</select>
+							</div>
+							<div class="md-form mb-1">
+								<label data-error="wrong" data-success="right" for="editMember">Assigned Team Member</label>
+								<select name="editMember">
+									<!--selecting destination city-->
+									{{#each ../tickets}}
+									<option>{{member_name}}</option>
+									{{/each}}
+								</select>
+							</div>
+
+							<div class="md-form mb-1">
+								<label data-error="wrong" data-success="right" for="editNote">Issue Notes</label>
+								<textarea class="form-control" rows="3" name="editNote" placeholder="No notes. Add one?">{{note}}</textarea>
+							</div>
+						</div>
+					<div class="modal-footer d-flex justify-content-center updateInsideWrapper">
+
+							<button type="resolve" class="btn btn-success btn-lg btn-block">
+								Resolve Issue
+							</button>
+							<button type="submit" class="btn btn-primary btn-lg btn-block">
+								Update Current Ticket
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	{{/each}}
+</div>

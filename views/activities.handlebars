@@ -1,0 +1,125 @@
+<div class="container">
+
+	<!--search activities-->
+	<form action="/activities/search" method="get">
+
+		<div class="form-group col-md-7">
+			<input name="search" class="form-control" type="text" placeholder="Search" aria-label="Search">
+		</div>
+		<div class="form-group col-md-3">
+			<!--select what to filter the search results by-->
+			<select class="form-control" name="filter">
+				<option value="activity_name">Activity Name</option>
+				<option value="id">Activity ID</option>
+			</select>
+		</div>
+		<div class="form-group col-md-2">
+			<button type="submit" class="btn btn-primary btn-block">Search Activities</button>
+		</div>
+
+	</form>
+
+	<!--display activities table-->
+	<div class="">
+		<table class='table'>
+			<thead>
+				<tr>
+					<th>Activity ID</th>
+					<th>Activity Name</th>
+			</thead>
+			<tbody>
+				<!--using handlebars to display each row from database-->
+				{{#each activities}}
+				<tr>
+					<td>{{id}}</td>
+					<td>{{activity_name}}</td>
+					<td>
+						<!--button to redirect to update modal of selected row-->
+						<button type="button" class="btn btn-warning btn-padded inTableButton" data-toggle="modal"
+							data-target="#activitiesUpdate{{id}}"> Update </button>
+					</td>
+					<td>
+						<!--button to call delete function in js for selected row-->
+						<form action="activities/delete" method="post">
+							<input type="hidden" name="deleteGID" value="{{id}}">
+							<button type="submit" class="btn btn-danger inTableButton"> Delete</button>
+						</form>
+					</td>
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</div>
+
+
+	<!--add activities-->
+	<div class="buttonCont">
+		<button class="btn btn-success btn-lg btn-block" type="button" data-toggle="modal" data-target="#addactivities"
+			aria-expanded="false" aria-controls="addaccount">Add a New Activity</button><br />
+	</div>
+	<!--Bootstrap styling of modal-->
+	<div class="row d-flex justify-content-center modalWrapper">
+		<div class="modal fade modalUpdateClass" id="addactivities" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<form action="/activities/add" method="post">
+						<!--fileds to add new input-->
+						<div class="modal-header">
+							<h4 class="modal-title"> Add a New Activity</h4>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body mx-3">
+							<div class="md-form mb-1">
+								<label>Activity Name</label>
+								<input type="text" class="form-control" name="new_activity_name"
+									placeholder="enter activity name">
+							</div>
+						</div>
+						<div class="modal-footer d-flex justify-content-center updateInsideWrapper">
+							<button type="submit" class="btn btn-primary btn-lg btn-block">Add Activity</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--update activities-->
+	{{#each activities}}
+	<div class="row d-flex justify-content-center modalWrapper">
+		<!--bootstrap styling-->
+		<div class="modal fade modalUpdateClass" id="activitiesUpdate{{id}}" tabindex="-1" role="dialog"
+			aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<form action="/activities/update" method="post">
+						<input type="hidden" name="updateID" value="{{id}}">
+						<div class="modal-header text-left">
+							<!--data manipulation inputs for each of the selected rows, values will already be prepopulated-->
+							<h4 class="modal-title"> Update Activity</h4>
+							<button type="button" class="close text-secondary" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body mx-3">
+							<div class="md-form mb-1">
+								<label data-error="wrong" data-success="right" for="editactivity_name">Activity
+									Name</label>
+								<input type="text" name="editactivity_name" class="form-control validate"
+									value="{{activity_name}}" required>
+							</div>
+						</div>
+						<div class="modal-footer d-flex justify-content-center updateInsideWrapper">
+							<button type="submit" class="btn btn-primary btn-lg btn-block">
+								Update Activity
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	{{/each}}
+</div>

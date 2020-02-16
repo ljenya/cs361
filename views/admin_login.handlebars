@@ -1,0 +1,181 @@
+<div class="container">
+
+	<!--search flights-->
+	<form action="/flight/search" method="get">
+
+		<div class="form-group col-md-7">
+			<input name="search" class="form-control" type="text" placeholder="Search" aria-label="Search">
+		</div>
+		<div class="form-group col-md-3">
+			<select class="form-control" name="filter">
+				<!--select what to filter the search results by-->
+				<option value="airline">Airline</option>
+				<option value="flight_no">Flight Number</option>
+				<option value="city">Destination City</option>
+				<option value="flight_date">Flight Date</option>
+			</select>
+		</div>
+		<div class="form-group col-md-2">
+			<button type="submit" class="btn btn-primary btn-block">Search Flight</button>
+		</div>
+
+	</form>
+
+	<!--display flight table-->
+	<div>
+		<table class='table'>
+			<thead>
+				<tr>
+					<th>Airline</th>
+					<th>Flight Number</th>
+					<th>Flight Destination City</th>
+					<th>Ticket Price</th>
+					<th>Flight Date</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#each flight}}
+				<tr>
+					<!--using handlebars to display each row from database-->
+					<td>{{airline}}</td>
+					<td>{{flight_no}}</td>
+					<td>{{city}}</td>
+					<td>${{ticket_price}}</td>
+					<td>{{flight_date}}</td>
+
+
+					<td>
+						<!--button to redirect to update modal of selected row-->
+						<button type="button" class="btn btn-warning btn-padded inTableButton" data-toggle="modal"
+							data-target="#flightUpdate{{flight_no}}"> Update </button>
+					</td>
+					<td>
+						<!--button to call delete function in js for selected row-->
+						<form action="flight/delete" method="post">
+							<input type="hidden" name="deleteGID" value="{{flight_no}}">
+							<button type="submit" class="btn btn-danger inTableButton"> Delete</button>
+						</form>
+					</td>
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</div>
+
+
+	<!--add to flight-->
+	<div class="buttonCont">
+		<button class="btn btn-success btn-lg btn-block" type="button" data-toggle="modal" data-target="#addflight"
+			aria-expanded="false" aria-controls="addaccount">Add a New Flight</button><br />
+	</div>
+	<!--Bootstrap styling of modal-->
+	<div class="row d-flex justify-content-center modalWrapper">
+		<div class="modal fade modalUpdateClass" id="addflight" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<form action="/flight/add" method="post">
+
+						<div class="modal-header">
+							<h4 class="modal-title"> Add a New Flight</h4>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<!--fileds to add new input-->
+						<div class="modal-body mx-3">
+							<div class="md-form mb-1">
+								<label>Airline</label>
+								<input type="text" class="form-control" name="new_airline" placeholder="enter airline">
+							</div>
+							<div class="md-form mb-1">
+								<label>Flight No.</label>
+								<input type="text" class="form-control" name="new_flight_no"
+									placeholder="enter flight #">
+							</div>
+							<div class="md-form mb-1">
+								<label> Flight Destination</label>
+								<select name="new_flight_destination">
+									<!--selecting from destination table-->
+									{{#each destination}}
+									<option value="{{id}}">{{city}}</option>
+									{{/each}}
+								</select>
+							</div>
+							<div class="md-form mb-1">
+								<label>Ticket Price</label>
+								<input type="number" class="form-control" name="new_ticket_price"
+									placeholder="enter ticket price">
+							</div>
+							<div class="md-form mb-1">
+								<label>Flight Date</label>
+								<input type="date" class="form-control" name="new_flight_date" </div> </div> </div> <div
+									class="modal-footer d-flex justify-content-center updateInsideWrapper">
+								<button type="submit" class="btn btn-primary btn-lg btn-block">Add Flight</button>
+							</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--update flight-->
+	{{#each flight}}
+	<div class="row d-flex justify-content-center modalWrapper">
+		<!--bootstrap styling-->
+		<div class="modal fade modalUpdateClass" id="flightUpdate{{flight_no}}" tabindex="-1" role="dialog"
+			aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<form action="/flight/update" method="post">
+						<input type="hidden" name="updateID" value="{{flight_no}}">
+						<div class="modal-header text-left">
+							<h4 class="modal-title"> Update Flight</h4>
+							<button type="button" class="close text-secondary" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<!--data manipulation inputs for each of the selected rows, values will already be prepopulated-->
+						<div class="modal-body mx-3">
+							<div class="md-form mb-1">
+								<label data-error="wrong" data-success="right" for="editairline">Airline</label>
+								<input type="text" name="editairline" class="form-control validate" value="{{airline}}"
+									required>
+							</div>
+							<div class="md-form mb-1">
+								<label data-error="wrong" data-success="right" for="editflight_no">Flight No.</label>
+								<input type="number" name="editflight_no" class="form-control validate"
+									value="{{flight_no}}" required>
+							</div>
+							<div class="md-form mb-1">
+								<label> Flight Destination</label>
+								<select name="editflight_destination">
+									<!--selecting destination city-->
+									{{#each ../destination}}
+									<option value="{{id}}">{{city}}</option>
+									{{/each}}
+								</select>
+							</div>
+							<div class="md-form mb-1">
+								<label data-error="wrong" data-success="right" for="editticket_price">Ticket
+									Price</label>
+								<input type="number" name="editticket_price" class="form-control validate"
+									value="{{ticket_price}}" required>
+							</div>
+							<div class="md-form mb-1">
+								<label data-error="wrong" data-success="right" for="editflight_date">Fligh Date</label>
+								<input type="date" name="editflight_date" class="form-control validate"
+									value="{{flight_date}}" required>
+							</div>
+						</div>
+						<div class="modal-footer d-flex justify-content-center updateInsideWrapper">
+							<button type="submit" class="btn btn-primary btn-lg btn-block">
+								Update Flight
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	{{/each}}
+</div>

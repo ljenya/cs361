@@ -1,0 +1,45 @@
+<div class="container">
+
+<form action="/new_ticket/add" method="post">
+						<div class="modal-header">
+							<h4 class="modal-title"> Submit a Support Ticket</h4>
+						</div>
+						<!--fileds to add new input-->
+						<div class="modal-body mx-3">
+
+  <div class="form-group">
+    <label>Select Category</label>
+    <select class="form-control" name="new_category">
+      <option>Hardware</option>
+      <option>Operating System</option>
+      <option>Software</option>
+      <option>Other</option>
+    </select>
+  </div>
+							<div class="md-form mb-1">
+								<label>Name</label>
+								<input type="text" class="form-control" name="new_name"
+									placeholder="enter full name">
+							</div>
+							<div class="md-form mb-1">
+								<label>Phone Number</label>
+								<input type="text" class="form-control" name="new_phone"
+									placeholder="enter phone number">
+							</div>
+							<div class="md-form mb-1">
+								<label>Title</label>
+								<input type="text" class="form-control" name="new_title"
+									placeholder="summarize your issue">
+
+													<div class="md-form mb-1">
+    							<label>Issue</label>
+    							<textarea class="form-control" rows="3" name="new_issue" placeholder="describe your issue"></textarea>
+  						</div>
+						</div>
+
+
+						<div class="modal-footer d-flex justify-content-center updateInsideWrapper">
+							<button type="submit" class="btn btn-primary btn-lg btn-block">Submit Ticket</button>
+						</div>
+
+</div>
