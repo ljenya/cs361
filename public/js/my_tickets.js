@@ -17,32 +17,6 @@ module.exports = function() {
             });
         }
     }
-/*
-    //Get flight table
-    function getFlight(mysql) {
-        return function(callback) {
-            mysql.pool.query("SELECT flight_no FROM flight", function(err, tb2) {
-                if (err) {
-                    return callback(err, []);
-                }
-                return callback(null, tb2);
-            });
-        }
-    }
-*/
-    //Get the destination table
-    function getMembers(mysql) {
-        return function(callback) {
-            mysql.pool.query("SELECT * FROM team_members", function(err, tb3) {
-                if (err) {
-                    return callback(err, []);
-                }
-                return callback(null, tb3);
-            });
-        }
-    }
-
-
 
     //Get flight table
     function getCategories(mysql) {
@@ -55,28 +29,27 @@ module.exports = function() {
             });
         }
     }
-
-    //Search trough the tickets table based on given filters in handlebars
-    function searchFunction(req, res, mysql, context, complete) {
-        var query = "SELECT tickets.id, category, title, issue, member_name, sub_date, priority, note FROM tickets WHERE " + req.query.filter + " LIKE " + mysql.pool.escape(req.query.search + '%');
-        console.log(query)
-        mysql.pool.query(query, function(err, results) {
-            if (err) {
-                res.write(JSON.stringify(err));
-                res.end();
-            }
-            context.tickets = results;
-            complete();
-        });
-    };
+/*
+    //Get the destination table
+    function getDestination(mysql) {
+        return function(callback) {
+            mysql.pool.query("SELECT id, city FROM destination", function(err, tb3) {
+                if (err) {
+                    return callback(err, []);
+                }
+                return callback(null, tb3);
+            });
+        }
+    }
+*/
 
     //Render the page with the loaded tables
     router.get('/', function(req, res) {
 
         var mysql = req.app.get('mysql');
         async.parallel({
-                members: getMembers(mysql),
                 categories: getCategories(mysql),
+                //flight: getFlight(mysql),
                 tickets: gettickets(mysql)
             },
 
@@ -84,24 +57,9 @@ module.exports = function() {
                 if (err) {
                     console.log(err.message);
                 }
-                res.render('tickets', results);
+                res.render('my_tickets', results);
             }
         );
-    });
-
-    //Render the search results based on selected criteria
-    router.get('/search', function(req, res) {
-        var callbackCount = 0;
-        var context = {};
-        var mysql = req.app.get('mysql');
-        searchFunction(req, res, mysql, context, complete);
-
-        function complete() {
-            callbackCount++;
-            if (callbackCount >= 1) {
-                res.render('tickets', context);
-            };
-        };
     });
 /*
     //Add function to add into the tickets table
@@ -125,22 +83,22 @@ module.exports = function() {
     router.post('/update', function(req, res) {
         console.log(req.body)
         var mysql = req.app.get('mysql');
-        var sql = "UPDATE tickets SET priority = ?, member_name = ?, updates = ? WHERE id = ?";
-        var inserts = [req.body.editPriority, req.body.editMember, req.body.editUpdates, req.body.updateID];
+        var sql = "UPDATE tickets SET category = ?, status = ?, issue = ? WHERE id = ?";
+        var inserts = [req.body.editCategory, req.body.editStatus, req.body.editIssue, req.body.updateID];
         sql = mysql.pool.query(sql, inserts, function(err, results) {
             if (err) {
                 console.log(JSON.stringify(err))
                 res.write(JSON.stringify(err));
                 res.end();
             } else {
-                res.redirect('/tickets');
+                res.redirect('/my_tickets');
             }
         });
     });
 
 
 
-   //Update a row from tickets table baed on id
+    //Update a row from tickets table baed on id
     router.post('/chat', function(req, res) {
         console.log(req.body)
         var mysql = req.app.get('mysql');
@@ -152,16 +110,16 @@ module.exports = function() {
                 res.write(JSON.stringify(err));
                 res.end();
             } else {
-                res.redirect('/tickets');
+                res.redirect('/my_tickets');
             }
         });
     });
 
     //Delete an entry from the table based on client id
-    router.post('/delete', function(req, res) {
+    router.post('/status', function(req, res) {
         var mysql = req.app.get('mysql');
-        var sql = "DELETE FROM tickets WHERE id = ?";
-        var inserts = [req.body.deleteGID];
+        var sql = "UPDATE tickets SET status = 'Closed' WHERE id = ?";
+        var inserts = [req.body.editStatus];
         sql = mysql.pool.query(sql, inserts, function(err, results) {
             if (err) {
                 console.log(err)
@@ -169,7 +127,7 @@ module.exports = function() {
                 res.status(400);
                 res.end();
             } else {
-                res.redirect('/tickets');
+                res.redirect('/my_tickets');
             }
         });
     });

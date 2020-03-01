@@ -1,48 +1,32 @@
-    <header>
-        <div class="primary_header">
-            <h1 class="title">eSupport Solutions</h1>
+    <div class="header">
+        <div class="customer_header">
+			<div><img src="/images/logo.png" alt="Benny Logo" width="100" height="120"></div>
+			<div><h1 class="title">Benny Services - Support Center</h1></div>
         </div>
         <div class="navbar navbar-default navbar-static-top" role="navigation">
-            <a href="/tickets">Active Support Tickets</a>
-            <a href="/new_ticket">Client Side</a>
+            <a href="/my_tickets">My Tickets</a>
+            <a href="/new_ticket">Create a New Ticket</a>
+            <a href="/tickets">Manager Side</a>
         </div>
-    </header>
+    </div>
 
 
-
-<div class="container">
+<div class="custcontainer">
 
 	<!--search tickets-->
-	<form action="/tickets/search" method="get">
-
-		<div class="form-group col-md-7">
-			<input name="search" class="form-control" type="text" placeholder="Search" aria-label="Search">
-		</div>
-		<!--select what to filter the search results by-->
-		<div class="form-group col-md-3">
-			<select class="form-control" name="filter">
-				<option value="category">Category</option>
-				<option value="team_member">Team Member</option>
-				<option value="priority">Priority</option>
-			</select>
-		</div>
-		<div class="form-group col-md-2">
-			<button type="submit" class="btn btn-primary btn-block">Search Tickets</button>
-		</div>
-
-	</form>
+						<div class="modal-header">
+							<h3 class="modal-title"> My Tickets</h4>
+						</div>
 
 	<!--display table-->
 	<div>
 		<table class='table'>
 			<thead>
 				<tr>
-					<th>ID</th>
 					<th>Ticket Category</th>
-					<th>Issue</th>
-					<th>Assigned Member Name</th>
+					<th>Ticket Title</th>
+					<th>Assigned Support Specialist</th>
 					<th>Submission Date</th>
-					<th>Priority</th>
 					<th>Ticket Status</th>
 					<th></th>
 					<th></th>
@@ -52,35 +36,33 @@
 				<!--using handlebars to display each row from database-->
 				{{#each tickets}}
 				<tr>
-					<td>{{id}}</td>
 					<td>{{category}}</td>
 					<td>{{title}}</td>
 					<td>{{member_name}}</td>
 					<td>{{sub_date}}</td>
-					<td>{{priority}}</td>
 					<td>{{status}}</td>
+					<td>
+						<!--button to redirect to update modal of selected row-->
+						<button type="button" class="btn btn-warning btn-padded inTableButton" data-toggle="modal"
+							data-target="#ticketsUpdate{{id}}">View & Edit</button>
+					</td>
 
 					<td>
 						<!--button to redirect to update modal of selected row-->
 						<button type="button" class="btn btn-info btn-padded inTableButton" data-toggle="modal"
 							data-target="#ticketsChat{{id}}">Chat</button>
 					</td>
-					<td>
-						<!--button to redirect to update modal of selected row-->
-						<button type="button" class="btn btn-warning btn-padded inTableButton" data-toggle="modal"
-							data-target="#ticketsUpdate{{id}}"> Update </button>
-					</td>
-					<td>
-						<!--button to call delete function in js for selected row-->
-						<form action="tickets/delete" method="post">
-							<input type="hidden" name="deleteGID" value="{{id}}">
-							<button type="submit" class="btn btn-danger inTableButton">Delete</button>
-						</form>
-					</td>
 				</tr>
 				{{/each}}
 			</tbody>
 		</table>
+	</div>
+
+
+	<!--add to tickets-->
+	<div class="buttonCont">
+		<button class="btn btn-success btn-lg btn-block" type="button" data-toggle="modal" data-target="/new_ticket"
+			aria-expanded="false" aria-controls="addaccount" onclick="window.location.href = '/new_ticket'">Add a New Ticket</button><br />
 	</div>
 
 	<!--update tickets-->
@@ -91,7 +73,7 @@
 			aria-hidden="true">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
-					<form action="/tickets/update" method="post">
+					<form action="/my_tickets/update" method="post">
 						<input type="hidden" name="updateID" value="{{id}}">
 						<div class="modal-header text-left">
 							<h4 class="modal-title">{{title}}</h4>
@@ -102,37 +84,35 @@
 						<!--data manipulation inputs for each of the selected rows, values will already be prepopulated-->
 						<div class="modal-body mx-3">
 							<div class="md-form mb-1">
-								<label data-error="wrong" data-success="right">Issue Description</label>
-								<p>{{issue}}</p>
-							</div>
-							<div class="md-form mb-1">
-								<label data-error="wrong" data-success="right" for="editPriority">Edit Issue Priority</label>
-								<select name="editPriority">
+								<label data-error="wrong" data-success="right" for="editCategory">Change Category</label>
+								<select name="editCategory">
 									<!--selecting destination city-->
-									<option>1</option>
-									<option>2</option>
-									<option>3</option>
-									<option>4</option>
-									<option>5</option>
-								</select>
-							</div>
-							<div class="md-form mb-1">
-								<label data-error="wrong" data-success="right" for="editMember">Assigned Team Member</label>
-								<select name="editMember">
-									<!--selecting destination city-->
-									{{#each ../members}}
-									<option>{{member_name}}</option>
+									{{#each ../categories}}
+									<option>{{category}}</option>
 									{{/each}}
 								</select>
 							</div>
 							<div class="md-form mb-1">
-								<label data-error="wrong" data-success="right" for="editUpdates">Send an Update to Customer</label>
-								<textarea class="form-control" rows="3" name="editUpdates" placeholder="No updates. Send One?">{{updates}}</textarea>
+								<label data-error="wrong" data-success="right" for="editStatus">Change Status</label>
+								<select name="editStatus">
+									<!--selecting destination city-->
+									<option>Open</option>
+									<option>Closed</option>
+								</select>
+							</div>
+							<div class="md-form mb-1">
+								<label data-error="wrong" data-success="right">Updates from Support Member</label>
+								<p>{{member_name}}: {{updates}}</p>
+							</div>
+							<div class="md-form mb-1">
+								<label data-error="wrong" data-success="right" for="editIssue">Issue Description</label>
+								<textarea class="form-control" rows="3" name="editIssue" placeholder="Add description:">{{issue}}</textarea>
 							</div>
 						</div>
 					<div class="modal-footer d-flex justify-content-center updateInsideWrapper">
+
 							<button type="submit" class="btn btn-primary btn-lg btn-block">
-								Update Current Ticket
+								Update My Ticket
 							</button>
 						</div>
 					</form>
@@ -143,6 +123,8 @@
 	{{/each}}
 
 
+
+
 	<!--update tickets-->
 	{{#each tickets}}
 	<!--bootstrap styling-->
@@ -151,10 +133,10 @@
 			aria-hidden="true">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
-					<form action="/tickets/chat" method="post">
+					<form action="/my_tickets/chat" method="post">
 						<input type="hidden" name="updateID" value="{{id}}">
 						<div class="modal-header text-left">
-							<h4 class="modal-title">Chat with {{sub_name}}</h4>
+							<h4 class="modal-title">Communication with {{member_name}}</h4>
 							<button type="button" class="close text-secondary" data-dismiss="modal" aria-label="Close">
 								<span aria-hidden="true">&times;</span>
 							</button>
@@ -167,7 +149,7 @@
 							</div>
 							<div class="md-form mb-1">
 								<label data-error="wrong" data-success="right" for="editNote">Send Chat</label>
-								<textarea class="form-control" rows="3" name="editNote" placeholder="No notes. Add one?">{{member_name}}: </textarea>
+								<textarea class="form-control" rows="3" name="editNote" placeholder="No notes. Add one?">{{sub_name}}: </textarea>
 							</div>
 						</div>
 					<div class="modal-footer d-flex justify-content-center updateInsideWrapper">
@@ -182,4 +164,6 @@
 		</div>
 	</div>
 	{{/each}}
-</div>
+
+
+

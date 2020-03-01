@@ -28,15 +28,15 @@ module.exports = function() {
     router.post('/add', function(req, res) {
         console.log(req.body)
         var mysql = req.app.get('mysql');
-        var sql = "INSERT INTO tickets (`category`, `member_name`, `phone`, `title`, `issue`) VALUES (?, ?, ?, ?, ?)";
-        var inserts = [req.body.new_category, req.body.new_name, req.body.new_phone, req.body.new_title, req.body.new_issue];
+        var sql = "INSERT INTO tickets (`category`, `sub_name`, `phone`, `title`, `issue`) VALUES (?, ?, ?, ?, ?)";
+        var inserts = [req.body.new_category, req.body.new_sub_name, req.body.new_phone, req.body.new_title, req.body.new_issue];
         sql = mysql.pool.query(sql, inserts, function(err, results) {
             if (err) {
                 console.log(JSON.stringify(error))
                 res.write(JSON.stringify(error));
                 res.end();
             } else {
-                res.redirect('/new_ticket');
+                res.redirect('/my_tickets');
             }
         });
     });
