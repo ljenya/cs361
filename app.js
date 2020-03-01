@@ -28,6 +28,7 @@ app.use('/new_ticket', require('./public/js/new_ticket.js'));
 app.use('/my_tickets', require('./public/js/my_tickets.js'));
 app.use('/client_login', require('./public/js/client_login.js'));
 app.use('/admin_login', require('./public/js/admin_login.js'));
+app.use('/members', require('./public/js/members.js'));
 //app.use('/invoices', require('./public/js/invoices.js'));
 //app.use('/client_activities', require('./public/js/client_activities.js'));
 
