@@ -58,7 +58,7 @@ module.exports = function() {
 
     //Search trough the tickets table based on given filters in handlebars
     function searchFunction(req, res, mysql, context, complete) {
-        var query = "SELECT tickets.id, category, title, issue, member_name, sub_date, priority, note FROM tickets WHERE " + req.query.filter + " LIKE " + mysql.pool.escape(req.query.search + '%');
+        var query = "SELECT * FROM tickets WHERE " + req.query.filter + " LIKE " + mysql.pool.escape(req.query.search + '%');
         console.log(query)
         mysql.pool.query(query, function(err, results) {
             if (err) {
