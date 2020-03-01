@@ -25,6 +25,7 @@ app.get('/', function(req, res, next) {
 //Page rendering
 app.use('/tickets', require('./public/js/tickets.js'));
 app.use('/new_ticket', require('./public/js/new_ticket.js'));
+app.use('/my_tickets', require('./public/js/my_tickets.js'));
 app.use('/client_login', require('./public/js/client_login.js'));
 app.use('/admin_login', require('./public/js/admin_login.js'));
 //app.use('/invoices', require('./public/js/invoices.js'));
