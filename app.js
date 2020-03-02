@@ -1,20 +1,12 @@
 //Use express and handlebars
 var PORT = process.env.PORT || 8000;
 var express = require('express');
-var session = require('express-session');
-var cookieParser = require('cookie-parser');
-var mysql = require('./config/dbcon.js');
+var mysql = require('./dbcon.js');
 var morgan = require('morgan');
 var app = express();
 var handlebars = require('express-handlebars').create({ defaultLayout: 'main' });
 var bodyParser = require('body-parser');
 
-var passport = require('passport');
-var flash = require('connect-flash');
-
-require('./config/passport')(passport);
-
-app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
@@ -24,16 +16,6 @@ app.set('mysql', mysql);
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', process.argv[2]);
-app.use(session({
- secret: 'justasecret',
- resave:true,
- saveUninitialized: true
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(flash());
-
-require('./app/routes.js')(app, passport);
 
 //Render the home page
 app.get('/', function(req, res, next) {
